@@ -152,6 +152,12 @@ class SQLTask(Task):
 
 
 class MongoTask(Task):
+    """
+    The mongo task to export the Mongo DB dump.
+
+    Initially the mongoexport command takes the --username and --password parameters,
+    but according to our infrastructure, they don't are necessary, so they were remove.
+    """
     NAME = NotSet
     QUERY = NotSet
     EXT = 'mongo'
@@ -159,11 +165,8 @@ class MongoTask(Task):
     mongoexport
       --host {mongo_host}
       --db {mongo_db}
-      --username {mongo_user}
-      --password "{mongo_password}"
       --collection {mongo_collection}
       --query '{query}'
-      --slaveOk
       --out {filename}
       >&2
     """
@@ -260,7 +263,6 @@ class CopyS3FileTask(Task):
             # by looking for a marker file for that run. Return a more severe failure,
             # so that the overall environment dump fails, rather than just the particular
             # file being copied.
-
             head_command = "aws s3api head-object --bucket {bucket} --key {key}"
 
             marker_command = head_command.format(
@@ -273,16 +275,20 @@ class CopyS3FileTask(Task):
                 key=s3_source_filename
             )
 
-            try:
-                log.info("Running command with retries: %s.", marker_command)
-                # Define retries here, to recover from temporary outages when calling S3 to find files.
-                local_kwargs = dict(**kwargs)
-                local_kwargs['max_tries'] = MAX_TRIES_FOR_MARKER_FILE_CHECK
-                execute_shell(marker_command, **local_kwargs)
-            except subprocess.CalledProcessError:
-                error_message = 'Unable to find success marker for export {0}'.format(s3_marker_filename)
-                log.error(error_message)
-                raise FatalTaskError(error_message)
+            # This code block was commented because, the first time we ran this,
+            # we don't have data related to the previous run, so
+            # this always raises a FatalTaskError exception, and we don't want that.
+
+            # try:
+            #     log.info("Running command with retries: %s.", marker_command)
+            #     # Define retries here, to recover from temporary outages when calling S3 to find files.
+            #     local_kwargs = dict(**kwargs)
+            #     local_kwargs['max_tries'] = MAX_TRIES_FOR_MARKER_FILE_CHECK
+            #     execute_shell(marker_command, **local_kwargs)
+            # except subprocess.CalledProcessError:
+            #     error_message = 'Unable to find success marker for export {0}'.format(s3_marker_filename)
+            #     log.error(error_message)
+            #     raise FatalTaskError(error_message)
 
             # Then check that the source file exists.  It's okay if it isn't,
             # as that will happen when a particular database table is empty.
@@ -322,9 +328,14 @@ class UserIDMapTask(CourseTask, SQLTask):
     """
 
 
-class StudentModuleTask(CourseTask, CopyS3FileTask):
+class StudentModuleTask(CourseTask, SQLTask, CopyS3FileTask):
     NAME = 'courseware_studentmodule'
     EXT = 'sql'
+    SQL = """
+    SELECT *
+    FROM courseware_studentmodule
+    WHERE courseware_studentmodule.course_id='{course}'
+    """
 
 
 class TeamsTask(CourseTask, SQLTask):

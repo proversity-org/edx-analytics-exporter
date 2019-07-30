@@ -159,3 +159,7 @@ def get_filename_safe_course_id(course_id, replacement_char='_'):
     # We represent the first four with \w.
     # TODO: Once we support courses with unicode characters, we will need to revisit this.
     return re.sub(r'[^\w\.\-]', unicode(replacement_char), filename)
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
