@@ -4,24 +4,26 @@ defaults:
   auth_file: /path/to/the/auth/file
   gpg_master_key: the-master-key@example.com
   gpg_keys: gpg-keys
-  work_dir: /tmp
-  external_prefix: ''
-  output_bucket: the-output-bucket
-  pipeline_bucket: the-pipeline-bucket
-  output_prefix: ''
+  work_dir: path-to-store-the-artifact-and-temporary-files
+  external_prefix: aws-bucket-prefix
+  output_bucket: aws-bucket-name
+  pipeline_bucket: aws-bucket-name
+  output_prefix: aws-bucket-prefix
   se_bucket: the-stack-exchange-bucket
-  django_admin: ''
-  django_pythonpath: ''
-  django_settings: django.settings
-  django_cms_settings: django.cms.settings
+  django_admin: full-path-to-the-django-admin.py
+  django_pythonpath: full-path-to-the-python-bin
+  django_settings: lms-django-settings e.g. lms.envs.devstack_docker
+  django_cms_settings: cms-django-settings e.g. cms.envs.devstack_docker
   django_database: the_django_database
-  mongo_collection: the_mongo_collection
-  sql_user: the_sql_user
-  sql_db: the_sql_db
+  mongo_collection: name-of-the-mongo-collection
+  sql_user: user-name
+  sql_db: name-of-the-edxapp-db e.g. edxapp
+  secret_key: ''
   monitor: false
   graphite_host: localhost
   graphite_port: 8125
   graphite_prefix: edx.analytics.research
+  bucket: aws-bucket-name
 
 environments:
   prod:
@@ -36,6 +38,14 @@ environments:
     mongo_db: the_mongo_db
     name: edge-mongodb
     sql_host: edge-sql-host.example.com
+  local:
+    django_config: path-to-the-django-config e.g. /edx/app/edxapp/
+    mongo_host: edx.devstack.mongo:27017
+    mongo_db: edxapp
+    mongo_user: edxapp
+    mongo_password: password
+    name: local-mongodb This name will be used to create the Mongo DB files.
+    sql_host: edx.devstack.mysql
 
 organizations:
   edX:
