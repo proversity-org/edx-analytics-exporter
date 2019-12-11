@@ -4,6 +4,7 @@ docopt
 edx-ccx-keys
 edx-opaque-keys
 graphitesend==0.10.0 # Apache
+mysql-connector-python==8.0.18
 path.py
 pbr
 pip==1.5.6		# MIT // AN-4322
