@@ -57,6 +57,12 @@ class MysqlDumpQueryToTSV(object):
                 converted_row = [self._normalize_value(v) for v in row]
                 writer.writerow(converted_row)
 
+            # Custom Proversity fix to avoid infinite loop at last row of the query results.
+            # If less than MAX_FETCH_SIZE rows were fetched in this loop then is safe to
+            # assume there won't be anymore results and we can exit the cycle.
+            if len(rows) < MAX_FETCH_SIZE:
+                break
+
     def _normalize_value(self, value):
         if value is None: value='NULL'
         return unicode(value).encode('utf-8').replace('\\', '\\\\').replace('\r', '\\r').replace('\t','\\t').replace('\n', '\\n')
