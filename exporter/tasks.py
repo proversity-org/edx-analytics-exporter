@@ -154,9 +154,6 @@ class SQLTask(Task):
 class MongoTask(Task):
     """
     The mongo task to export the Mongo DB dump.
-
-    Initially the mongoexport command takes the --username and --password parameters,
-    but according to our infrastructure, they don't are necessary, so they were remove.
     """
     NAME = NotSet
     QUERY = NotSet
@@ -165,6 +162,8 @@ class MongoTask(Task):
     mongoexport
       --host {mongo_host}
       --db {mongo_db}
+      --username {mongo_user}
+      --password "{mongo_password}"
       --collection {mongo_collection}
       --query '{query}'
       --out {filename}
